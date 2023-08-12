@@ -20,7 +20,6 @@ public enum Utils {
     public static HttpServer createServer(int port, HttpHandler handler) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/", handler);
-        server.setExecutor(Executors.newVirtualThreadPerTaskExecutor());
         return server;
     }
 
@@ -39,5 +38,11 @@ public enum Utils {
         OutputStream os = exchange.getResponseBody();
         os.write(text.getBytes());
         os.close();
+        exchange.close();
+    }
+
+    public static int getSystemProperty(String key, int defaultValue) {
+        String value = System.getenv(key);
+        return (value != null) ? Integer.parseInt(value) : defaultValue;
     }
 }
