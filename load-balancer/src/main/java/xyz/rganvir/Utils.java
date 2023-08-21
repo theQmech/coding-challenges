@@ -11,7 +11,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.concurrent.Executors;
+import java.util.UUID;
 
 
 public enum Utils {
@@ -41,8 +41,12 @@ public enum Utils {
         exchange.close();
     }
 
-    public static int getSystemProperty(String key, int defaultValue) {
-        String value = System.getenv(key);
+    public static int getSystemPropertyAsInt(String key, int defaultValue) {
+        String value = System.getProperty(key);
         return (value != null) ? Integer.parseInt(value) : defaultValue;
+    }
+
+    static String getUID(int size) {
+        return UUID.randomUUID().toString().substring(0, size);
     }
 }
