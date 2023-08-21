@@ -12,14 +12,16 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.UUID;
+import java.util.concurrent.Executors;
 
 
 public enum Utils {
     ;
 
-    public static HttpServer createServer(int port, HttpHandler handler) throws Exception {
+    public static HttpServer createServer(int port, HttpHandler rootHandler) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-        server.createContext("/", handler);
+        server.createContext("/", rootHandler);
+        server.setExecutor(Executors.newFixedThreadPool(5));
         return server;
     }
 
