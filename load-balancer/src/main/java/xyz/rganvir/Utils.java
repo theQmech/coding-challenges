@@ -11,6 +11,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
@@ -18,10 +19,16 @@ import java.util.concurrent.Executors;
 public enum Utils {
     ;
 
-    public static HttpServer createServer(int port, HttpHandler rootHandler) throws Exception {
+    static void setupLogging() {
+        String path = Objects.requireNonNull(LoadBalancerMain.class
+                .getClassLoader().getResource("logging.properties")).getFile();
+        System.setProperty("java.util.logging.config.file", path);
+    }
+
+    public static HttpServer createServer(int port, int nThreads, HttpHandler rootHandler) throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/", rootHandler);
-        server.setExecutor(Executors.newFixedThreadPool(5));
+        server.setExecutor(Executors.newFixedThreadPool(nThreads));
         return server;
     }
 
@@ -43,12 +50,12 @@ public enum Utils {
         exchange.close();
     }
 
-    public static int getSystemPropertyAsInt(String key, int defaultValue) {
+    public static int getSystemPropertyInt(String key, int defaultValue) {
         String value = System.getProperty(key);
         return (value != null) ? Integer.parseInt(value) : defaultValue;
     }
 
-    static String getUID(int size) {
+    public static String getUID(int size) {
         return UUID.randomUUID().toString().substring(0, size);
     }
 }
