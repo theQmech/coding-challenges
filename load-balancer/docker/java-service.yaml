@@ -1,0 +1,8 @@
+services:
+  java_app:
+    image: bitnami/java:20.0.2-10
+    environment:
+      CLASSPATH: /loadbalancer.jar
+    volumes:
+      - ../target/load-balancer-1.0-SNAPSHOT.jar:/loadbalancer.jar
+    command: sh -c "java --enable-preview $$JAVA_OPTS $$TARGET_CLASS"

@@ -11,24 +11,30 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.LogManager;
 
 
 public enum Utils {
     ;
 
     static void setupLogging() {
-        String path = Objects.requireNonNull(LoadBalancerMain.class
-                .getClassLoader().getResource("logging.properties")).getFile();
-        System.setProperty("java.util.logging.config.file", path);
+        try {
+            LogManager.getLogManager().readConfiguration(
+                    LoadBalancerMain.class.getClassLoader().getResourceAsStream("logging.properties"));
+        } catch (IOException e) {
+            System.out.println("Unable to configure logging. Using default settings.");
+        }
     }
 
     public static HttpServer createServer(int port, int nThreads, HttpHandler rootHandler) throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/", rootHandler);
-        server.setExecutor(Executors.newFixedThreadPool(nThreads));
+        ExecutorService executor = Utils.getSystemPropertyBool("VTHREADS", false) ?
+                Executors.newVirtualThreadPerTaskExecutor() : Executors.newFixedThreadPool(nThreads);
+        server.setExecutor(executor);
         return server;
     }
 
@@ -53,6 +59,11 @@ public enum Utils {
     public static int getSystemPropertyInt(String key, int defaultValue) {
         String value = System.getProperty(key);
         return (value != null) ? Integer.parseInt(value) : defaultValue;
+    }
+
+    public static boolean getSystemPropertyBool(String key, boolean defaultValue) {
+        String value = System.getProperty(key);
+        return (value != null) ? Boolean.parseBoolean(value) : defaultValue;
     }
 
     public static String getUID(int size) {

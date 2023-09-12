@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  loadbalancer:
+    extends:
+      file: java-service.yaml
+      service: java_app
+    ports:
+      - "8800:8800"
+    environment:
+      JVM_OPTS: >
+        -DSERVER_PORT=8800
+        -DNTHREADS=200
+        -DVTHREADS=true
+      TARGET_CLASS: xyz.rganvir.LoadBalancerMain
+  backend1:
+    extends:
+      file: java-service.yaml
+      service: java_app
+    ports:
+      - "8801:8801"
+    environment:
+      JVM_OPTS: >
+        -DSERVER_PORT=8801
+        -DNTHREADS=5
+      TARGET_CLASS: xyz.rganvir.BackendServer
+  backend2:
+    extends:
+      file: java-service.yaml
+      service: java_app
+    ports:
+      - "8802:8801"
+    environment:
+      JVM_OPTS: >
+        -DSERVER_PORT=8801
+        -DNTHREADS=5
+      TARGET_CLASS: xyz.rganvir.BackendServer

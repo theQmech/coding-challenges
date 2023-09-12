@@ -35,9 +35,11 @@ public class LoadBalancer {
     }
 
     private void printStats() {
-        String result = "Statistics [" +
-                pendingPerUri.entrySet().stream().map(entry -> String.format("<%s : %d>", entry.getKey(), entry.getValue().get())).collect(Collectors.joining(", ")) +
-                " ]";
+        String result = "Statistics [%s]".formatted(
+                pendingPerUri.entrySet().stream()
+                        .map(entry -> String.format("<%s : %d>", entry.getKey(), entry.getValue().get()))
+                        .collect(Collectors.joining(", "))
+        );
         LOGGER.info(result);
     }
 

@@ -16,8 +16,11 @@ public class BackendServer {
     public static void main(String[] args) throws Exception {
         String serverId = Utils.getUID(2);
         int port = Utils.getSystemPropertyInt("SERVER_PORT", 8801);
+        int nThreads = Utils.getSystemPropertyInt("NTHREADS", 5);
 
-        HttpServer server = Utils.createServer(port, 5, exchange -> Utils.respondText(exchange, "Hello from Backend Server!"));
+        HttpServer server = Utils.createServer(port, nThreads,
+                exchange -> Utils.respondText(exchange, "Hello from Backend Server!")
+        );
         server.createContext(healthPath, exchange -> Utils.respondText(exchange, "Ok"));
         server.start();
 
