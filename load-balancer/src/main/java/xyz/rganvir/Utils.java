@@ -3,6 +3,11 @@ package xyz.rganvir;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import io.opentelemetry.exporter.logging.LoggingMetricExporter;
+import io.opentelemetry.exporter.otlp.http.metrics.OtlpHttpMetricExporter;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
+import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -11,6 +16,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,6 +25,27 @@ import java.util.logging.LogManager;
 
 public enum Utils {
     ;
+    static OpenTelemetrySdk setupOtel() {
+        PeriodicMetricReader loggingReader = PeriodicMetricReader.builder(LoggingMetricExporter.create())
+                .setInterval(Duration.ofSeconds(5))
+                .build();
+        PeriodicMetricReader exporterReader = PeriodicMetricReader.builder(
+                        OtlpHttpMetricExporter.builder().setEndpoint("http://localhost:9000").build())
+                .setInterval(Duration.ofSeconds(5))
+                .build();
+        SdkMeterProvider sdkMeterProvider = SdkMeterProvider.builder()
+                        .registerMetricReader(loggingReader)
+                        .registerMetricReader(exporterReader)
+                        .build();
+
+        OpenTelemetrySdk openTelemetrySdk = OpenTelemetrySdk.builder()
+                .setMeterProvider(sdkMeterProvider)
+                .buildAndRegisterGlobal();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(openTelemetrySdk::close));
+
+        return openTelemetrySdk;
+    }
 
     static void setupLogging() {
         try {

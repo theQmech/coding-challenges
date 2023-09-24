@@ -10,7 +10,7 @@ services:
     environment:
       JVM_OPTS: >
         -DSERVER_PORT=8800
-        -DNTHREADS=200
+        -DNTHREADS=20
         -DVTHREADS=true
       TARGET_CLASS: xyz.rganvir.LoadBalancerMain
   backend1:
@@ -30,6 +30,17 @@ services:
       service: java_app
     ports:
       - "8802:8801"
+    environment:
+      JVM_OPTS: >
+        -DSERVER_PORT=8801
+        -DNTHREADS=5
+      TARGET_CLASS: xyz.rganvir.BackendServer
+  backend3:
+    extends:
+      file: java-service.yaml
+      service: java_app
+    ports:
+      - "8803:8801"
     environment:
       JVM_OPTS: >
         -DSERVER_PORT=8801

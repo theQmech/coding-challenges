@@ -1,5 +1,6 @@
 package xyz.rganvir;
 
+import io.opentelemetry.sdk.OpenTelemetrySdk;
 import xyz.rganvir.loadbalancer.LoadBalancer;
 
 import java.io.IOException;
@@ -17,7 +18,8 @@ public class LoadBalancerMain {
     public static void main(String[] args) throws IOException {
         int port = Utils.getSystemPropertyInt("SERVER_PORT", 8800);
         int nThreads = Utils.getSystemPropertyInt("NTHREADS", 200);
-        LoadBalancer lb = new LoadBalancer(port, nThreads);
+        OpenTelemetrySdk openTelemetrySdk = Utils.setupOtel();
+        LoadBalancer lb = new LoadBalancer(port, nThreads, openTelemetrySdk);
         lb.start();
         LOGGER.info("Load balancer running on [%d]".formatted(port));
     }

@@ -2,6 +2,8 @@ package xyz.rganvir.loadbalancer;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import io.opentelemetry.api.metrics.LongCounter;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
 import xyz.rganvir.BackendUriProvider;
 import xyz.rganvir.Utils;
 
@@ -21,12 +23,16 @@ public class LoadBalancer {
     private final BackendUriProvider uriProvider;
     private final Map<String, AtomicInteger> pendingPerUri;
     private final ScheduledExecutorService statusPrintExecutor;
+    private final LongCounter counter;
 
-    public LoadBalancer(int port, int nThreads) throws IOException {
+    public LoadBalancer(int port, int nThreads, OpenTelemetrySdk openTelemetrySdk) throws IOException {
         this.server = Utils.createServer(port, nThreads, this::forwardResponse);
         this.uriProvider = new BackendUriProvider();
         this.pendingPerUri = new ConcurrentHashMap<>();
         this.statusPrintExecutor = Executors.newScheduledThreadPool(1);
+        this.counter = openTelemetrySdk.getMeter("loadbalancer")
+                .counterBuilder("requests").setDescription("Requests handled").setUnit("req")
+                        .build();
     }
 
     public void start() {
@@ -63,6 +69,8 @@ public class LoadBalancer {
             LOGGER.info("[%s] Unable to send response [%s]".formatted(requestId, e.getMessage()));
         }
         recordUriHandled(requestId, uri, response);
+
+        counter.add(1);
     }
 
     private void recordUriHandled(String requestId, String uri, String response) {
