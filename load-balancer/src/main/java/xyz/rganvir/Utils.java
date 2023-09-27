@@ -30,7 +30,7 @@ public enum Utils {
                 .setInterval(Duration.ofSeconds(5))
                 .build();
         PeriodicMetricReader exporterReader = PeriodicMetricReader.builder(
-                        OtlpHttpMetricExporter.builder().setEndpoint("http://localhost:9000").build())
+                        OtlpHttpMetricExporter.builder().setEndpoint("http://otel-collector:4318/v1/metrics").build())
                 .setInterval(Duration.ofSeconds(5))
                 .build();
         SdkMeterProvider sdkMeterProvider = SdkMeterProvider.builder()

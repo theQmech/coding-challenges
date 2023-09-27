@@ -46,7 +46,7 @@ public class LoadBalancer {
                         .map(entry -> String.format("<%s : %d>", entry.getKey(), entry.getValue().get()))
                         .collect(Collectors.joining(", "))
         );
-        LOGGER.info(result);
+        LOGGER.fine(result);
     }
 
     private void forwardResponse(HttpExchange exchange) {
@@ -64,7 +64,7 @@ public class LoadBalancer {
 
         try {
             Utils.respondText(exchange, response);
-            LOGGER.info("[%s] Response sent [%s]".formatted(requestId, response));
+            LOGGER.fine("[%s] Response sent [%s]".formatted(requestId, response));
         } catch (IOException e) {
             LOGGER.info("[%s] Unable to send response [%s]".formatted(requestId, e.getMessage()));
         }
@@ -75,11 +75,11 @@ public class LoadBalancer {
 
     private void recordUriHandled(String requestId, String uri, String response) {
         pendingPerUri.get(uri).getAndUpdate(x -> x - 1);
-        LOGGER.info("[%s] Handled request [%s]".formatted(requestId, response));
+        LOGGER.fine("[%s] Handled request [%s]".formatted(requestId, response));
     }
 
     private void recordUriRequest(String requestId, String uri) {
-        LOGGER.info("[%s] forwarding to [%s]".formatted(requestId, uri));
+        LOGGER.fine("[%s] forwarding to [%s]".formatted(requestId, uri));
         pendingPerUri.computeIfAbsent(uri, unused -> new AtomicInteger()).incrementAndGet();
     }
 }

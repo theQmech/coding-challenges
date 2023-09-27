@@ -46,3 +46,31 @@ services:
         -DSERVER_PORT=8801
         -DNTHREADS=5
       TARGET_CLASS: xyz.rganvir.BackendServer
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.86.0
+    container_name: otel-collector
+    ports:
+      - "4318:4318"
+    volumes:
+      - ./otelcol-config.yml:/etc/otelcol-config.yml
+    command: ["--config=/etc/otelcol-config.yml"]
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    environment:
+        DOCKER_INFLUXDB_INIT_MODE: setup
+        DOCKER_INFLUXDB_INIT_USERNAME: admin
+        DOCKER_INFLUXDB_INIT_PASSWORD: admin
+        DOCKER_INFLUXDB_INIT_ORG: AnOrganization
+        DOCKER_INFLUXDB_INIT_BUCKET: a-bucket
+        DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: a-token
+  grafana:
+    image: grafana/grafana:10.1.2
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin

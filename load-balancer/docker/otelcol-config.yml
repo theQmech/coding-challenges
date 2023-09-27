@@ -1,0 +1,27 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+
+exporters:
+  logging:
+    verbosity: detailed
+  influxdb:
+    endpoint: http://influxdb:8086
+    org: AnOrganization
+    token: a-token
+    bucket: a-bucket
+
+processors:
+  batch:
+  filter:
+
+connectors:
+  spanmetrics:
+
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging, influxdb]

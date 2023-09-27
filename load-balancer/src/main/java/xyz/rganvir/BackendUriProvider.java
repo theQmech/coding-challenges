@@ -53,7 +53,7 @@ public class BackendUriProvider {
                 boolean status;
                 try {
                     String healthResponse = Utils.performGet(serverUris.get(i) + healthPath);
-                    LOGGER.info("Health response from [%s] is [%s]".formatted(serverUris.get(i), healthResponse));
+                    LOGGER.fine("Health response from [%s] is [%s]".formatted(serverUris.get(i), healthResponse));
                     status = healthResponse.equals("Ok");
                 } catch (Exception e) {
                     status = false;
